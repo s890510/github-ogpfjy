@@ -3,6 +3,7 @@ import {MatTableDataSource} from '@angular/material/table';
 import {FormControl} from '@angular/forms';
 import {isNumeric} from 'rxjs/internal-compatibility';
 import crc16ccitt from 'crc/crc16ccitt';
+import { sha1 } from '@angular/compiler/src/i18n/digest';
 
 export interface QRCodeElement {
   id: number;
@@ -22,9 +23,9 @@ export class QRCodeComponent implements OnInit {
   elementData: QRCodeElement[] = [];
   dataSource = new MatTableDataSource(this.elementData);
 
-  dataTag: any[] = [];
-  dataTag62: any[] = [];
-  dataTag64: any[] = [];
+  dataTag: string[] = [];
+  dataTag62: QRCodeElement[] = [];
+  dataTag64: QRCodeElement[] = [];
 
   formDataId: FormControl;
   formDataLabel: FormControl;
@@ -65,25 +66,31 @@ export class QRCodeComponent implements OnInit {
       data.data = this.formDataData.value;
     }
 
-    let checkIndex = data.id;
+    let checkIndex = sha1(String(data.id) + String(data.label));
+    if (this.dataTag.indexOf(checkIndex) >= 0 || data.id == 63) {
+      this.resetFormData();
+      return;
+    }
+    
     if (data.id === 62 || data.id === 64) {
       if (isNaN(data.label)) {
         this.resetFormData();
         return;
       }
+    } 
 
-      checkIndex = Number(String(data.id) + String(data.label));
-
-      if (!isNaN(this.dataTag[checkIndex])) {
-        this.resetFormData();
-        return;
-      }
-    } else if (!isNaN(this.dataTag[checkIndex])) {
-      this.resetFormData();
-      return;
+    switch (data.id) {
+      case 62:
+        this.dataTag62.push(data);
+        break;
+      case 64:
+        this.dataTag64.push(data);
+        break;
+      default:
+        this.dataTag.push(checkIndex);
+        break;
     }
 
-    this.dataTag[checkIndex] = data.data;
     this.elementData.push(data);
     this.dataSource = new MatTableDataSource(this.elementData);
 
@@ -110,15 +117,55 @@ export class QRCodeComponent implements OnInit {
     this.updateCodeData();
   }
 
+  calcSpecialTag(tagId: number): string {
+    let str = '';
+    let data: QRCodeElement[];
+
+    console.log('calcSpecialTag');
+    console.log(tagId);
+    switch(tagId) {
+      case 62:
+        data = this.dataTag62;
+        break;
+      case 64:
+        data = this.dataTag64;
+        break;
+      default:
+        return null;
+    }
+    
+    console.log('AAABB');
+    console.log(data);
+    console.log(data.length);
+
+    for (const d of data) {
+      console.log(d);
+      str += this.prefixInteger(d.label, 2) + this.prefixInteger(d.data.length, 2) + d.data
+      console.log(str);
+    }
+
+    str = this.prefixInteger(tagId, 2) + this.prefixInteger(str.length, 2) + str;
+
+    return str;
+  }
 
   updateCodeData() {
     let str = '';
 
+    console.log("updateCodeData");
+    console.log(this.dataTag62);
+    console.log(this.dataTag64);
+
+    let alreadyLoad = [];
 
     for (const data of this.elementData) {
       switch (data.id) {
         case 62:
         case 64:
+          if (isNaN(alreadyLoad[data.id])) {
+            str += this.calcSpecialTag(data.id);
+            alreadyLoad[data.id] = true;
+          }
           break;
         default:
           str += this.prefixInteger(data.id, 2) + this.prefixInteger(data.data.length, 2) + data.data;
@@ -142,17 +189,26 @@ export class QRCodeComponent implements OnInit {
   updateData(value: HTMLInputElement) {
 
     const elementResult = this.elementData.find(dataElement =>
-      dataElement.id === Number(value.id) && dataElement.label === Number(value.labels));
+      sha1(String(dataElement.id) + String(dataElement.label)) == (value.id));
 
     elementResult.data = value.value;
 
-    // this.elementData.push(data);
     this.dataSource = new MatTableDataSource(this.elementData);
-
     this.updateCodeData();
   }
 
   getIndexId(id: number, label: number): string {
-    return (id === 62 || id === 64) ? String(id) + String(label) : String(id);
+    return sha1(String(id) + String(label));
+  }
+
+  delTag(element: QRCodeElement) {
+    const index = this.elementData.indexOf(element);
+    
+    if (index >= 0) {
+      this.elementData.splice(index, 1);
+    }
+
+    this.dataSource = new MatTableDataSource(this.elementData);
+    this.updateCodeData();
   }
 }

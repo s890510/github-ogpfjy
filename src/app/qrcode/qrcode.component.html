@@ -48,7 +48,7 @@
     <ng-container matColumnDef="delete">
       <mat-header-cell *matHeaderCellDef> Delete </mat-header-cell>
       <mat-cell *matCellDef="let element">
-        <span class="badge badge-pill badge-danger">Delete</span>
+        <button class="btn btn-outline-primary btn-sm" (click)="delTag(element)">Delete</button>
       </mat-cell>
     </ng-container>
 
