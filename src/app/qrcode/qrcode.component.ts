@@ -2,8 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {MatTableDataSource} from '@angular/material/table';
 import {FormControl} from '@angular/forms';
 import {isNumeric} from 'rxjs/internal-compatibility';
-import crc16ccitt from 'crc/crc16ccitt';
-import { sha1 } from '@angular/compiler/src/i18n/digest';
+import {crc16ccitt} from 'crc';
+import {SHA1} from 'crypto-js'
 
 export interface QRCodeElement {
   id: number;
@@ -66,7 +66,7 @@ export class QRCodeComponent implements OnInit {
       data.data = this.formDataData.value;
     }
 
-    let checkIndex = sha1(String(data.id) + String(data.label));
+    let checkIndex = SHA1(String(data.id) + String(data.label)).toString();
     if (this.dataTag.indexOf(checkIndex) >= 0 || data.id == 63) {
       this.resetFormData();
       return;
@@ -189,7 +189,7 @@ export class QRCodeComponent implements OnInit {
   updateData(value: HTMLInputElement) {
 
     const elementResult = this.elementData.find(dataElement =>
-      sha1(String(dataElement.id) + String(dataElement.label)) == (value.id));
+      SHA1(String(dataElement.id) + String(dataElement.label)).toString() == (value.id));
 
     elementResult.data = value.value;
 
@@ -198,7 +198,7 @@ export class QRCodeComponent implements OnInit {
   }
 
   getIndexId(id: number, label: number): string {
-    return sha1(String(id) + String(label));
+    return SHA1(String(id) + String(label)).toString();
   }
 
   delTag(element: QRCodeElement) {
