@@ -1,0 +1,27 @@
+<div class="container" style="display: flex; justify-content: center; min-height: 100%; min-width: 80%">
+  <div class="h-auto div_Content">
+    <div>
+      <button class="btn btn-outline-primary btn-sm" (click)="newTab()">Add QRCode</button>
+    </div>
+
+    <div style="padding-top: 15px;">
+      <mat-tab-group [selectedIndex]="tabSelected.value"
+                     (selectedIndexChange) = "tabSelected.setValue($event)">
+        <mat-tab *ngFor="let tab of tabs; let index = index" [label]="tab">
+          <div style="padding-top: 15px">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Tab Name</span>
+              </div>
+              <input type="text" class="form-control" #tabName [value]="tab"
+                     (blur)="updateTabName(tabName)" (keyup.enter)="updateTabName(tabName)">
+            </div>
+            <div style="padding-top: 15px">
+              <app-qrcode></app-qrcode>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+</div>

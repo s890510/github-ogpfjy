@@ -1,0 +1,8 @@
+.div_Content {
+  width: 100%;
+  border-style: dashed;
+  border-color: #DDD;
+  border-width: thin;
+  align-items: stretch;
+  padding: 5px;
+}

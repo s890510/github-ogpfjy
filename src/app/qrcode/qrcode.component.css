@@ -1,0 +1,20 @@
+.mat-column-id {
+  flex: 0 0 10%;
+  padding-left: 3px;
+}
+.mat-column-label {
+  flex: 0 0 10%;
+  padding-left: 3px;
+}
+.mat-column-data {
+  flex: 0 0 36%;
+  padding-left: 3px;
+}
+.mat-column-description {
+  flex: 0 0 36%;
+  padding-left: 3px;
+}
+.mat-column-delete {
+  flex: 0 0 8%;
+  padding-left: 3px;
+}

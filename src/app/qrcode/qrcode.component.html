@@ -1,0 +1,68 @@
+<div class="input-group">
+  <div class="input-group-prepend">
+    <span class="input-group-text">Id</span>
+  </div>
+  <input type="text" [formControl]="formDataId" class="form-control">
+
+  <div class="input-group-prepend">
+    <span class="input-group-text">Label</span>
+  </div>
+  <input type="text" [formControl]="formDataLabel" class="form-control" id="label">
+
+  <div class="input-group-prepend">
+    <span class="input-group-text">data</span>
+  </div>
+  <input type="text" [formControl]="formDataData" class="form-control" id="data" style="width: 70%">
+
+  <div class="input-group-append">
+    <button type="submit" class="btn btn-outline-secondary" (click)="addTag()">Submit</button>
+  </div>
+</div>
+
+<br><br>
+
+<div>
+  <mat-table [dataSource]="dataSource" style="width: 100%; border-style: solid; border-color: #DDD; border-width: thin;">
+    <ng-container matColumnDef="id">
+      <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{setNumberPrefix(element.id, 2)}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="label">
+      <mat-header-cell *matHeaderCellDef> Label </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{setNumberPrefix(element.label, 2)}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="data">
+      <mat-header-cell *matHeaderCellDef> Data </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <input type="text" class="form-control" style="width: 80%" #data [id]="getIndexId(element.id, element.label)" [value]="element.data" (keyup.enter)="updateData(data)">
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="description">
+      <mat-header-cell *matHeaderCellDef> Description </mat-header-cell>
+      <mat-cell *matCellDef="let element"> -- </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="delete">
+      <mat-header-cell *matHeaderCellDef> Delete </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <span class="badge badge-pill badge-danger">Delete</span>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+</div>
+
+<br><br>
+
+<div>
+  <mat-form-field appearance="fill" style="width: 100%">
+    <textarea matInput [value]="outputData" [disabled]="true"></textarea>
+  </mat-form-field>
+</div>
+
+<qrcode [qrdata]="outputData.toString()" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
